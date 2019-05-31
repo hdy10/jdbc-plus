@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.data.db;
+package com.github.hdy.jdbcplus.data.db;
 
 
 import java.lang.reflect.Method;

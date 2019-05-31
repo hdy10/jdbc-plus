@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.util;
+package com.github.hdy.jdbcplus.util;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

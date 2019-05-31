@@ -1,6 +1,6 @@
-package com.hdy.jdbcplus.data.db;
+package com.github.hdy.jdbcplus.data.db;
 
-import com.hdy.jdbcplus.result.PageResults;
+import com.github.hdy.jdbcplus.result.PageResults;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

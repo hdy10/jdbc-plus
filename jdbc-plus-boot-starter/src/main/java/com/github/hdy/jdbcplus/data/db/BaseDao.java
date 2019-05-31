@@ -1,7 +1,7 @@
-package com.hdy.jdbcplus.data.db;
+package com.github.hdy.jdbcplus.data.db;
 
-import com.hdy.jdbcplus.result.PageResults;
-import com.hdy.jdbcplus.util.TypeConvert;
+import com.github.hdy.jdbcplus.result.PageResults;
+import com.github.hdy.jdbcplus.util.TypeConvert;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;

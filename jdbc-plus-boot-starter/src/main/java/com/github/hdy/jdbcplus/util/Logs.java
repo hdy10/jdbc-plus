@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.util;
+package com.github.hdy.jdbcplus.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.log;
+package com.github.hdy.jdbcplus.log;
 
 /**
  * 数据库执行类型

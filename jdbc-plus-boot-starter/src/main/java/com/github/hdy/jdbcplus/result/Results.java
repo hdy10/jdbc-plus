@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.result;
+package com.github.hdy.jdbcplus.result;
 
 /**
  * 公共返回结果

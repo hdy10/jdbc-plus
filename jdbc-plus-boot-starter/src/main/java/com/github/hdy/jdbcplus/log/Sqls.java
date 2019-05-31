@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.log;
+package com.github.hdy.jdbcplus.log;
 
 import org.apache.commons.lang3.StringUtils;
 

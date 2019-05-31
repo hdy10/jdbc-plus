@@ -1,6 +1,6 @@
-package com.hdy.jdbcplus.result;
+package com.github.hdy.jdbcplus.result;
 
-import com.hdy.jdbcplus.util.TypeConvert;
+import com.github.hdy.jdbcplus.util.TypeConvert;
 
 public class PageUtil {
     private int pageNumber;

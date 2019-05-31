@@ -1,14 +1,14 @@
-package com.hdy.jdbcplus.data.db;
+package com.github.hdy.jdbcplus.data.db;
 
-import com.hdy.jdbcplus.data.annotation.Entity;
-import com.hdy.jdbcplus.data.annotation.Fields;
-import com.hdy.jdbcplus.data.annotation.Id;
-import com.hdy.jdbcplus.log.SqlLogs;
-import com.hdy.jdbcplus.log.SqlStatementType;
-import com.hdy.jdbcplus.log.Sqls;
-import com.hdy.jdbcplus.result.PageResults;
-import com.hdy.jdbcplus.result.PageUtil;
-import com.hdy.jdbcplus.util.TypeConvert;
+import com.github.hdy.jdbcplus.log.SqlLogs;
+import com.github.hdy.jdbcplus.log.SqlStatementType;
+import com.github.hdy.jdbcplus.log.Sqls;
+import com.github.hdy.jdbcplus.data.annotation.Entity;
+import com.github.hdy.jdbcplus.data.annotation.Fields;
+import com.github.hdy.jdbcplus.data.annotation.Id;
+import com.github.hdy.jdbcplus.result.PageResults;
+import com.github.hdy.jdbcplus.result.PageUtil;
+import com.github.hdy.jdbcplus.util.TypeConvert;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

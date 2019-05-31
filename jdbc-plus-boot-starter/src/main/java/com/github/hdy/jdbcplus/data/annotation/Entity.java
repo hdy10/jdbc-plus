@@ -1,4 +1,4 @@
-package com.hdy.jdbcplus.data.annotation;
+package com.github.hdy.jdbcplus.data.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
