@@ -9,7 +9,7 @@
     <version>1.0</version>
     <name>jdbc-plus-boot-starter</name>
     <description>基于springboot的jdbcTemplate简单封装</description>
-    <url>http://vip.hdy1010.top/</url>
+    <url>https://github.com/hdy10/jdbc-plus-boot-starter/</url>
     <packaging>jar</packaging>
     <parent>
         <groupId>org.springframework.boot</groupId>
