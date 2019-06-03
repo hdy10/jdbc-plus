@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * layer分页返回结果
+ * 分页返回结果
  * Created by hdy on 2018/6/12.
  */
 public class PageResults {
@@ -25,23 +25,23 @@ public class PageResults {
     }
 
     public static PageResults success(Map<String, Object> page) {
-        return new PageResults(0, Integer.parseInt(page.get("count").toString()), null, page.get("list"));
+        return new PageResults(200, Integer.parseInt(page.get("count").toString()), null, page.get("list"));
     }
 
     public static PageResults success(int count, List<?> data) {
-        return new PageResults(0, count, null, data);
+        return new PageResults(200, count, null, data);
     }
 
     public static PageResults fail() {
-        return new PageResults(1, 0, "查询失败", null);
+        return new PageResults(500, 0, "查询失败", null);
     }
 
     public static PageResults noData() {
-        return new PageResults(1, 0, "没有查询到更多数据！", null);
+        return new PageResults(301, 0, "没有查询到更多数据！", null);
     }
 
     public static PageResults fail(String msg) {
-        return new PageResults(1, 0, msg, null);
+        return new PageResults(500, 0, msg, null);
     }
 
     public int getCode() {
