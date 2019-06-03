@@ -488,7 +488,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                     return null;
                 }
             } else {
-                if (TypeConvert.isNull(value)) {
+                if (TypeConvert.isNull(value) && customField.isPrimaryKey()) {
                     logger.error("非自增主键未设置ID！");
                     return null;
                 }
