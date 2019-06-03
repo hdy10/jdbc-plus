@@ -1,11 +1,11 @@
 package com.github.hdy.jdbcplus.data.db;
 
-import com.github.hdy.jdbcplus.log.SqlLogs;
-import com.github.hdy.jdbcplus.log.SqlStatementType;
-import com.github.hdy.jdbcplus.log.Sqls;
 import com.github.hdy.jdbcplus.data.annotation.Entity;
 import com.github.hdy.jdbcplus.data.annotation.Fields;
 import com.github.hdy.jdbcplus.data.annotation.Id;
+import com.github.hdy.jdbcplus.log.SqlLogs;
+import com.github.hdy.jdbcplus.log.SqlStatementType;
+import com.github.hdy.jdbcplus.log.Sqls;
 import com.github.hdy.jdbcplus.result.PageResults;
 import com.github.hdy.jdbcplus.result.PageUtil;
 import com.github.hdy.jdbcplus.util.TypeConvert;
@@ -488,15 +488,19 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                     return null;
                 }
             } else {
-                if (TypeConvert.isNull(value) && customField.isPrimaryKey()) {
-                    logger.error("非自增主键未设置ID！");
-                    return null;
+                if (customField.isPrimaryKey()) {
+                    if (TypeConvert.isNull(value)) {
+                        logger.error("非自增主键未设置ID！");
+                        return null;
+                    }
                 }
-                fields.append(customField.getName() + ",");
-                if (StringUtils.isNumeric(value.toString())) {
-                    values.append(customField.getValue() + ",");
-                } else {
-                    values.append("'" + customField.getValue() + "',");
+                if (!TypeConvert.isNull(value)) {
+                    fields.append(customField.getName() + ",");
+                    if (StringUtils.isNumeric(value.toString())) {
+                        values.append(customField.getValue() + ",");
+                    } else {
+                        values.append("'" + customField.getValue() + "',");
+                    }
                 }
             }
         }
