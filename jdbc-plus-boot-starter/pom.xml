@@ -6,7 +6,7 @@
 
     <groupId>com.github.hdy10</groupId>
     <artifactId>jdbc-plus-boot-starter</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
     <name>jdbc-plus-boot-starter</name>
     <description>基于springboot的jdbcTemplate简单封装</description>
     <url>https://github.com/hdy10/jdbc-plus-boot-starter/</url>
