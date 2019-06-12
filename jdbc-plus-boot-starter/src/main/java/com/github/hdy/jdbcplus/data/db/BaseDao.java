@@ -3,6 +3,7 @@ package com.github.hdy.jdbcplus.data.db;
 import com.github.hdy.jdbcplus.result.PageResults;
 import com.github.hdy.jdbcplus.util.TypeConvert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -226,6 +227,10 @@ public class BaseDao<T, ID> {
 
     public int update(String sql, Map<String, ?> params) {
         return jdbcRepository.update(sql, params);
+    }
+
+    public int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter) {
+        return jdbcRepository.batchUpdate(sql, batchPreparedStatementSetter);
     }
 
     /**

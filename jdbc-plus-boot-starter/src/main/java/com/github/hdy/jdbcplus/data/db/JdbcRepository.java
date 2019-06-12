@@ -1,6 +1,7 @@
 package com.github.hdy.jdbcplus.data.db;
 
 import com.github.hdy.jdbcplus.result.PageResults;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -157,6 +158,8 @@ interface JdbcRepository<T, ID> {
     int update(String sql, Object... params);
 
     int update(String sql, Map<String, ?> params);
+
+    int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter);
 
     /**
      * 执行删除SQL

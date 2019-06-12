@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -420,6 +421,10 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         int result = execute(sql, params);
         SqlLogs.log(sql, SqlStatementType.UPDATE, result, start, params);
         return result;
+    }
+
+    public int[] batchUpdate(String sql, BatchPreparedStatementSetter pss) {
+        return jdbcTemplate.batchUpdate(sql, pss);
     }
 
     /**
