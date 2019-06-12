@@ -20,23 +20,23 @@ public class Results {
     }
 
     public static Results success() {
-        return new Results(ResultCode.c_200, "操作成功", null);
+        return new Results(200, "操作成功", null);
     }
 
     public static Results success(String msg) {
-        return new Results(ResultCode.c_200, msg, null);
+        return new Results(200, msg, null);
     }
 
     public static Results success(Object data) {
-        return new Results(ResultCode.c_200, null, data);
+        return new Results(200, null, data);
     }
 
     public static Results fail() {
-        return new Results(ResultCode.c_500, "操作失败", null);
+        return new Results(200, "操作失败", null);
     }
 
     public static Results fail(String msg) {
-        return new Results(ResultCode.c_500, msg, null);
+        return new Results(200, msg, null);
     }
 
     public static Results fail(int code, String msg) {

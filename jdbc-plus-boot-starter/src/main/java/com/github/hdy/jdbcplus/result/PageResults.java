@@ -1,8 +1,8 @@
 package com.github.hdy.jdbcplus.result;
 
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 分页返回结果
@@ -12,23 +12,20 @@ public class PageResults {
     private int code;
     private int count;
     private String msg;
-    private Object data;
+    private List data = new ArrayList();
 
     public PageResults() {
     }
 
-    public PageResults(int code, int count, String msg, Object data) {
+    public PageResults(int code, int count, String msg, List data) {
         this.code = code;
         this.count = count;
         this.msg = msg;
         this.data = data;
     }
 
-    public static PageResults success(Map<String, Object> page) {
-        return new PageResults(200, Integer.parseInt(page.get("count").toString()), null, page.get("list"));
-    }
 
-    public static PageResults success(int count, List<?> data) {
+    public static PageResults success(int count, List data) {
         return new PageResults(200, count, null, data);
     }
 
@@ -72,7 +69,7 @@ public class PageResults {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(List data) {
         this.data = data;
     }
 }
