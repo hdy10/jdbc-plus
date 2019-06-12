@@ -12,6 +12,7 @@ public class CustomField {
     private Method setMethod;
     private Object value;
     private String type;
+    private boolean isTransient;
 
     public boolean isPrimaryKey() {
         return primaryKey;
@@ -75,5 +76,13 @@ public class CustomField {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public boolean isTransient() {
+        return isTransient;
+    }
+
+    public void setTransient(boolean aTransient) {
+        isTransient = aTransient;
     }
 }

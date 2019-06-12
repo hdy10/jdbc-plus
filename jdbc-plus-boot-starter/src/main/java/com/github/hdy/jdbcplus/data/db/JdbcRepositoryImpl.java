@@ -3,6 +3,7 @@ package com.github.hdy.jdbcplus.data.db;
 import com.github.hdy.jdbcplus.data.annotation.Entity;
 import com.github.hdy.jdbcplus.data.annotation.Fields;
 import com.github.hdy.jdbcplus.data.annotation.Id;
+import com.github.hdy.jdbcplus.data.annotation.Transient;
 import com.github.hdy.jdbcplus.log.SqlLogs;
 import com.github.hdy.jdbcplus.log.SqlStatementType;
 import com.github.hdy.jdbcplus.log.Sqls;
@@ -93,7 +94,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             table_name = entity.name();
             if (TypeConvert.isNull(table_name)) {
                 logger.error(" miss annotation name : {} ", " There are comments, but no notes are found, the default table name ");
-                table_name = clazz.getName();
+                table_name = clazz.getSimpleName();
             }
         } else {
             logger.error(" miss table annotation : {} ", " Could not find the corresponding comment, use the table name by default table name ");
@@ -477,29 +478,31 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         StringBuffer fields = new StringBuffer(" (");
         StringBuffer values = new StringBuffer("(");
         for (CustomField customField : customFields) {
-            Object value = customField.getValue();
-            // 自增
-            if (customField.isAutomatic()) {
-                isAutomatic = true;
-                setMethod = customField.getSetMethod();
-                type = customField.getType();
-                if (!TypeConvert.isNull(value)) {
-                    logger.error("自增主键不能设置ID！");
-                    return null;
-                }
-            } else {
-                if (customField.isPrimaryKey()) {
-                    if (TypeConvert.isNull(value)) {
-                        logger.error("非自增主键未设置ID！");
+            if (!customField.isTransient()) {
+                Object value = customField.getValue();
+                // 自增
+                if (customField.isAutomatic()) {
+                    isAutomatic = true;
+                    setMethod = customField.getSetMethod();
+                    type = customField.getType();
+                    if (!TypeConvert.isNull(value)) {
+                        logger.error("自增主键不能设置ID！");
                         return null;
                     }
-                }
-                if (!TypeConvert.isNull(value)) {
-                    fields.append(customField.getName() + ",");
-                    if (StringUtils.isNumeric(value.toString())) {
-                        values.append(customField.getValue() + ",");
-                    } else {
-                        values.append("'" + customField.getValue() + "',");
+                } else {
+                    if (customField.isPrimaryKey()) {
+                        if (TypeConvert.isNull(value)) {
+                            logger.error("非自增主键未设置ID！");
+                            return null;
+                        }
+                    }
+                    if (!TypeConvert.isNull(value)) {
+                        fields.append(customField.getName() + ",");
+                        if (StringUtils.isNumeric(value.toString())) {
+                            values.append(customField.getValue() + ",");
+                        } else {
+                            values.append("'" + customField.getValue() + "',");
+                        }
                     }
                 }
             }
@@ -560,19 +563,21 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         ID id = null;
         StringBuffer set = new StringBuffer(" set ");
         for (CustomField customField : customFields) {
-            Object value = customField.getValue();
-            if (customField.isPrimaryKey()) {
-                if (TypeConvert.isNull(value)) {
-                    logger.error("实体类ID为空！");
-                    return null;
-                }
-                id = (ID) value;
-            } else {
-                if (value != null) {
-                    if (StringUtils.isNumeric(value.toString())) {
-                        set.append(customField.getName() + "=" + value + ",");
-                    } else {
-                        set.append(customField.getName() + "='" + value + "',");
+            if (!customField.isTransient()) {
+                Object value = customField.getValue();
+                if (customField.isPrimaryKey()) {
+                    if (TypeConvert.isNull(value)) {
+                        logger.error("实体类ID为空！");
+                        return null;
+                    }
+                    id = (ID) value;
+                } else {
+                    if (value != null) {
+                        if (StringUtils.isNumeric(value.toString())) {
+                            set.append(customField.getName() + "=" + value + ",");
+                        } else {
+                            set.append(customField.getName() + "='" + value + "',");
+                        }
                     }
                 }
             }
@@ -636,6 +641,11 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                 if (!field.isAnnotationPresent(Id.class)) {
                     customField.setName(field.getName());
                 }
+            }
+            if (field.isAnnotationPresent(Transient.class)) {
+                customField.setTransient(true);
+            } else {
+                customField.setTransient(false);
             }
             customFields[k++] = customField;
         }
