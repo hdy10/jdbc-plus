@@ -120,6 +120,17 @@ public class BaseDao<T, ID> {
     }
 
     /**
+     * 查询单个字段结果
+     *
+     * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
+     * @param fieldName 字段名
+     * @return
+     */
+    public Object getSingleValueBySqlAndFieldName(String sql, String fieldName) {
+        return jdbcRepository.getSingleValueBySqlAndFieldName(sql, fieldName);
+    }
+
+    /**
      * 根据Sql查询集合
      *
      * @param sql
@@ -155,6 +166,17 @@ public class BaseDao<T, ID> {
 
     public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Map<String, ?> params) {
         return jdbcRepository.page(sql, toEntity, pageNumber, pageSize, params, tClass);
+    }
+
+    /**
+     * 根据实体分页查询
+     */
+    public PageResults page(Integer pageNumber, Integer pageSize) {
+        return jdbcRepository.page(pageNumber, pageSize, tClass);
+    }
+
+    public PageResults page(T entity, Integer pageNumber, Integer pageSize) {
+        return jdbcRepository.page(entity, pageNumber, pageSize, tClass);
     }
 
     /**
@@ -229,6 +251,13 @@ public class BaseDao<T, ID> {
         return jdbcRepository.update(sql, params);
     }
 
+    /**
+     * 批量修改
+     *
+     * @param sql
+     * @param batchPreparedStatementSetter
+     * @return
+     */
     public int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter) {
         return jdbcRepository.batchUpdate(sql, batchPreparedStatementSetter);
     }

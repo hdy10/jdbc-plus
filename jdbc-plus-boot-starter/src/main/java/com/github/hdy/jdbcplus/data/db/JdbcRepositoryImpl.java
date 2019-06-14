@@ -242,6 +242,17 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     }
 
     /**
+     * 查询单个字段结果
+     *
+     * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
+     * @param fieldName 字段名
+     * @return
+     */
+    public Object getSingleValueBySqlAndFieldName(String sql, String fieldName) {
+        return queryForMap(sql).get(fieldName);
+    }
+
+    /**
      * 根据Sql查询集合
      *
      * @param sql
@@ -322,6 +333,32 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             List<Map<String, Object>> list = queryForList(sql, params);
             return PageResults.success(count, list);
         }
+    }
+
+    /**
+     * 根据实体分页查询
+     */
+    public PageResults page(Integer pageNumber, Integer pageSize, Class<T> tClass) {
+        String sql = "select * from " + getTable(tClass);
+        return page(sql, true, pageNumber, pageSize, tClass);
+    }
+
+    public PageResults page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass) {
+        StringBuffer sql = new StringBuffer("select * from " + getTable(tClass) + " where 1 = 1");
+        CustomField[] customFields = getFieldNames(entity, tClass);
+        for (CustomField customField : customFields) {
+            if (!customField.isTransient()) {
+                Object value = customField.getValue();
+                if (!TypeConvert.isNull(value)) {
+                    if (StringUtils.isNumeric(value.toString())) {
+                        sql.append(" and " + customField.getName() + " = " + value);
+                    } else {
+                        sql.append(" and " + customField.getName() + " = " + value);
+                    }
+                }
+            }
+        }
+        return page(sql.toString(), true, pageNumber, pageSize, tClass);
     }
 
     /**

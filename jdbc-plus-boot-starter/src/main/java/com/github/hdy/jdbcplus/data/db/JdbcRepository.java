@@ -86,6 +86,15 @@ interface JdbcRepository<T, ID> {
     Map<String, Object> queryForMap(String sql, Map<String, ?> params);
 
     /**
+     * 查询单个字段结果
+     *
+     * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
+     * @param fieldName 字段名
+     * @return
+     */
+    Object getSingleValueBySqlAndFieldName(String sql, String fieldName);
+
+    /**
      * 根据Sql查询集合
      *
      * @param sql
@@ -110,6 +119,13 @@ interface JdbcRepository<T, ID> {
     PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Class<T> tClass, Object... params);
 
     PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Map<String, ?> params, Class<T> tClass);
+
+    /**
+     * 根据实体分页查询
+     */
+    PageResults page(Integer pageNumber, Integer pageSize, Class<T> tClass);
+
+    PageResults page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass);
 
     /**
      * 查询总量
@@ -159,6 +175,13 @@ interface JdbcRepository<T, ID> {
 
     int update(String sql, Map<String, ?> params);
 
+    /**
+     * 批量修改
+     *
+     * @param sql
+     * @param batchPreparedStatementSetter
+     * @return
+     */
     int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter);
 
     /**
