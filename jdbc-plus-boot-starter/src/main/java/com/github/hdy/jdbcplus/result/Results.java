@@ -32,11 +32,11 @@ public class Results {
     }
 
     public static Results fail() {
-        return new Results(200, "操作失败", null);
+        return new Results(500, "操作失败", null);
     }
 
     public static Results fail(String msg) {
-        return new Results(200, msg, null);
+        return new Results(500, msg, null);
     }
 
     public static Results fail(int code, String msg) {
