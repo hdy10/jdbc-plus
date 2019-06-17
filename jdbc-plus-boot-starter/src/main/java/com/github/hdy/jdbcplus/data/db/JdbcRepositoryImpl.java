@@ -94,12 +94,10 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             Entity entity = clazz.getAnnotation(Entity.class);
             table_name = entity.name();
             if (TypeConvert.isNull(table_name)) {
-                logger.error(" miss annotation name : {} ", " There are comments, but no notes are found, the default table name ");
-                table_name = clazz.getSimpleName();
+                table_name = TypeConvert.humpToUnderline(clazz.getSimpleName());
             }
         } else {
-            logger.error(" miss table annotation : {} ", " Could not find the corresponding comment, use the table name by default table name ");
-            table_name = clazz.getName();
+            table_name = TypeConvert.humpToUnderline(clazz.getSimpleName());
         }
         if (TypeConvert.isNull(table_name))
             logger.error(" table annotation should be have [ name ] param : {} ", " Failed to get table name ");
@@ -678,10 +676,10 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             }
             if (field.isAnnotationPresent(Fields.class)) {
                 Fields fields1 = field.getAnnotation(Fields.class);
-                customField.setName(TypeConvert.isNull(fields1.name()) ? field.getName() : fields1.name());
+                customField.setName(TypeConvert.isNull(fields1.name()) ? TypeConvert.humpToUnderline(field.getName()) : fields1.name());
             } else {
                 if (!field.isAnnotationPresent(Id.class)) {
-                    customField.setName(field.getName());
+                    customField.setName(TypeConvert.humpToUnderline(field.getName()));
                 }
             }
             if (field.isAnnotationPresent(Transient.class)) {
