@@ -68,7 +68,7 @@
         <dependency>
             <groupId>com.github.hdy10</groupId>
             <artifactId>boot-common</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
     <profiles>
