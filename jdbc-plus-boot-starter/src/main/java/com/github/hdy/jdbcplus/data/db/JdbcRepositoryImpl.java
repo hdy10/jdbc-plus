@@ -1,5 +1,6 @@
 package com.github.hdy.jdbcplus.data.db;
 
+import com.github.hdy.common.util.Strings;
 import com.github.hdy.jdbcplus.data.annotation.Entity;
 import com.github.hdy.jdbcplus.data.annotation.Fields;
 import com.github.hdy.jdbcplus.data.annotation.Id;
@@ -7,14 +8,13 @@ import com.github.hdy.jdbcplus.data.annotation.Transient;
 import com.github.hdy.jdbcplus.log.SqlLogs;
 import com.github.hdy.jdbcplus.log.SqlStatementType;
 import com.github.hdy.jdbcplus.log.Sqls;
-import com.github.hdy.jdbcplus.result.PageResults;
-import com.github.hdy.jdbcplus.result.PageUtil;
-import com.github.hdy.jdbcplus.util.TypeConvert;
-import org.apache.commons.lang3.StringUtils;
+import com.github.hdy.jdbcplus.result.Page;
+import com.github.hdy.jdbcplus.util.Pager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,6 +42,9 @@ import java.util.Map;
 @Service
 public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     private final Logger logger = LogManager.getLogger(JdbcRepositoryImpl.class.getName());
+
+    @Value("${jdbc.log:true}")
+    private Boolean jdbcLog;
 
     @Autowired
     @Qualifier("JdbcTemplate")
@@ -93,13 +96,13 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         if (clazz.isAnnotationPresent(Entity.class)) {
             Entity entity = clazz.getAnnotation(Entity.class);
             table_name = entity.name();
-            if (TypeConvert.isNull(table_name)) {
-                table_name = TypeConvert.humpToUnderline(clazz.getSimpleName());
+            if (Strings.isNull(table_name)) {
+                table_name = Strings.camelToUnderline(clazz.getSimpleName());
             }
         } else {
-            table_name = TypeConvert.humpToUnderline(clazz.getSimpleName());
+            table_name = Strings.camelToUnderline(clazz.getSimpleName());
         }
-        if (TypeConvert.isNull(table_name))
+        if (Strings.isNull(table_name))
             logger.error(" table annotation should be have [ name ] param : {} ", " Failed to get table name ");
         return table_name;
     }
@@ -166,7 +169,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         long start = SqlLogs.getCurrentTimeMillis();
         String sql = "select * from " + getTable(tClass);
         List<T> result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<T>(tClass));
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
         return result;
     }
 
@@ -180,7 +184,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public List<T> findBySql(String sql, Class<T> tClass) {
         long start = SqlLogs.getCurrentTimeMillis();
         List<T> result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<T>(tClass));
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
         return result;
     }
 
@@ -194,7 +199,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public List<T> findBySql(String sql, Class<T> tClass, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         List<T> result = jdbcTemplate.query(sql, new BeanPropertyRowMapper<T>(tClass), params);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
@@ -208,7 +214,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public List<T> findBySql(String sql, Map<String, ?> params, Class<T> tClass) {
         long start = SqlLogs.getCurrentTimeMillis();
         List<T> result = namedParameterJdbcTemplate.query(sql, params, BeanPropertyRowMapper.newInstance(tClass));
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
@@ -221,21 +228,24 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public Map<String, Object> queryForMap(String sql) {
         long start = SqlLogs.getCurrentTimeMillis();
         Map<String, Object> result = jdbcTemplate.queryForMap(sql);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
         return result;
     }
 
     public Map<String, Object> queryForMap(String sql, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         Map<String, Object> result = jdbcTemplate.queryForMap(sql, params);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
     public Map<String, Object> queryForMap(String sql, Map<String, ?> params) {
         long start = SqlLogs.getCurrentTimeMillis();
         Map<String, Object> result = namedParameterJdbcTemplate.queryForMap(sql, params);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
@@ -244,6 +254,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      *
      * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
      * @param fieldName 字段名
+     *
      * @return
      */
     public Object getSingleValueBySqlAndFieldName(String sql, String fieldName) {
@@ -258,21 +269,24 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public List<Map<String, Object>> queryForList(String sql) {
         long start = SqlLogs.getCurrentTimeMillis();
         List<Map<String, Object>> result = jdbcTemplate.queryForList(sql);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start);
         return result;
     }
 
     public List<Map<String, Object>> queryForList(String sql, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         List<Map<String, Object>> result = jdbcTemplate.queryForList(sql, params);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
     public List<Map<String, Object>> queryForList(String sql, Map<String, ?> params) {
         long start = SqlLogs.getCurrentTimeMillis();
         List<Map<String, Object>> result = namedParameterJdbcTemplate.queryForList(sql, params);
-        SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
@@ -280,75 +294,57 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 分页查询
      *
      * @param sql
-     * @param toEntity   结果是否是转实体
      * @param pageNumber 页码
      * @param pageSize   页数量
+     *
      * @return
      */
-    public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Class<T> tClass) {
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Class<T> tClass) {
         Integer count = count(sql);
-        if (count == 0) {
-            return PageResults.noData();
-        }
-        PageUtil pager = new PageUtil(pageNumber, pageSize);
+        if (count == 0)
+            return new Page<T>(pageNumber, pageSize, 0, null);
+        Pager pager = new Pager(pageNumber, pageSize);
         sql += " limit " + pager.getPageNumber() + "," + pager.getPageSize();
-        if (toEntity) {
-            List<T> list = findBySql(sql, tClass);
-            return PageResults.success(count, list);
-        } else {
-            List<Map<String, Object>> list = queryForList(sql);
-            return PageResults.success(count, list);
-        }
+        List<T> list = findBySql(sql, tClass);
+        return new Page<T>(pageNumber, pageSize, count, list);
     }
 
-    public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Class<T> tClass, Object... params) {
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Class<T> tClass, Object... params) {
         Integer count = count(sql, params);
-        if (count == 0) {
-            return PageResults.noData();
-        }
-        PageUtil pager = new PageUtil(pageNumber, pageSize);
+        if (count == 0)
+            return new Page<T>(pageNumber, pageSize, 0, null);
+        Pager pager = new Pager(pageNumber, pageSize);
         sql += " limit " + pager.getPageNumber() + "," + pager.getPageSize();
-        if (toEntity) {
-            List<T> list = findBySql(sql, tClass, params);
-            return PageResults.success(count, list);
-        } else {
-            List<Map<String, Object>> list = queryForList(sql, params);
-            return PageResults.success(count, list);
-        }
+        List<T> list = findBySql(sql, tClass, params);
+        return new Page<T>(pageNumber, pageSize, count, list);
     }
 
-    public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Map<String, ?> params, Class<T> tClass) {
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Map<String, ?> params, Class<T> tClass) {
         Integer count = count(sql, params);
-        if (count == 0) {
-            return PageResults.noData();
-        }
-        PageUtil pager = new PageUtil(pageNumber, pageSize);
+        if (count == 0)
+            return new Page<T>(pageNumber, pageSize, 0, null);
+        Pager pager = new Pager(pageNumber, pageSize);
         sql += " limit " + pager.getPageNumber() + "," + pager.getPageSize();
-        if (toEntity) {
-            List<T> list = findBySql(sql, params, tClass);
-            return PageResults.success(count, list);
-        } else {
-            List<Map<String, Object>> list = queryForList(sql, params);
-            return PageResults.success(count, list);
-        }
+        List<T> list = findBySql(sql, params, tClass);
+        return new Page<T>(pageNumber, pageSize, count, list);
     }
 
     /**
      * 根据实体分页查询
      */
-    public PageResults page(Integer pageNumber, Integer pageSize, Class<T> tClass) {
+    public Page<T> page(Integer pageNumber, Integer pageSize, Class<T> tClass) {
         String sql = "select * from " + getTable(tClass);
-        return page(sql, true, pageNumber, pageSize, tClass);
+        return page(sql, pageNumber, pageSize, tClass);
     }
 
-    public PageResults page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass) {
+    public Page<T> page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass) {
         StringBuffer sql = new StringBuffer("select * from " + getTable(tClass) + " where 1 = 1");
         CustomField[] customFields = getFieldNames(entity, tClass);
         for (CustomField customField : customFields) {
             if (!customField.isTransient()) {
                 Object value = customField.getValue();
-                if (!TypeConvert.isNull(value)) {
-                    if (StringUtils.isNumeric(value.toString())) {
+                if (!Strings.isNull(value)) {
+                    if (Strings.isNumeric(value.toString())) {
                         sql.append(" and " + customField.getName() + " = " + value);
                     } else {
                         sql.append(" and " + customField.getName() + " = " + value);
@@ -356,33 +352,37 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                 }
             }
         }
-        return page(sql.toString(), true, pageNumber, pageSize, tClass);
+        return page(sql.toString(), pageNumber, pageSize, tClass);
     }
 
     /**
      * 查询总量
      *
      * @param sql
+     *
      * @return
      */
     public Integer count(String sql) {
         long start = SqlLogs.getCurrentTimeMillis();
         Integer result = jdbcTemplate.queryForObject(Sqls.buildCountSql(sql), Integer.class);
-        SqlLogs.log(Sqls.buildCountSql(sql), SqlStatementType.SELECT, result, start);
+        if (jdbcLog)
+            SqlLogs.log(Sqls.buildCountSql(sql), SqlStatementType.SELECT, result, start);
         return result;
     }
 
     public Integer count(String sql, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         Integer result = jdbcTemplate.queryForObject(Sqls.buildCountSql(sql), params, Integer.class);
-        SqlLogs.log(Sqls.buildCountSql(sql), SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(Sqls.buildCountSql(sql), SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
     public Integer count(String sql, Map<String, ?> params) {
         long start = SqlLogs.getCurrentTimeMillis();
         Integer result = namedParameterJdbcTemplate.queryForObject(Sqls.buildCountSql(sql), params, Integer.class);
-        SqlLogs.log(Sqls.buildCountSql(sql), SqlStatementType.SELECT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(Sqls.buildCountSql(sql), SqlStatementType.SELECT, result, start, params);
         return result;
     }
 
@@ -390,6 +390,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行SQL
      *
      * @param sql
+     *
      * @return
      */
     public int execute(String sql) {
@@ -408,26 +409,30 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行插入SQL
      *
      * @param sql
+     *
      * @return
      */
     public int insert(String sql) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql);
-        SqlLogs.log(sql, SqlStatementType.INSERT, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.INSERT, result, start);
         return result;
     }
 
     public int insert(String sql, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql, params);
-        SqlLogs.log(sql, SqlStatementType.INSERT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.INSERT, result, start, params);
         return result;
     }
 
     public int insert(String sql, Map<String, ?> params) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql, params);
-        SqlLogs.log(sql, SqlStatementType.INSERT, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.INSERT, result, start, params);
         return result;
     }
 
@@ -435,26 +440,30 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行修改SQL
      *
      * @param sql
+     *
      * @return
      */
     public int update(String sql) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql);
-        SqlLogs.log(sql, SqlStatementType.UPDATE, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.UPDATE, result, start);
         return result;
     }
 
     public int update(String sql, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql, params);
-        SqlLogs.log(sql, SqlStatementType.UPDATE, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.UPDATE, result, start, params);
         return result;
     }
 
     public int update(String sql, Map<String, ?> params) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql, params);
-        SqlLogs.log(sql, SqlStatementType.UPDATE, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.UPDATE, result, start, params);
         return result;
     }
 
@@ -466,6 +475,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行删除SQL
      *
      * @param sql
+     *
      * @return
      */
     public int delete(String sql) {
@@ -478,14 +488,16 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public int delete(String sql, Object... params) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql, params);
-        SqlLogs.log(sql, SqlStatementType.DELETE, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.DELETE, result, start, params);
         return result;
     }
 
     public int delete(String sql, Map<String, ?> params) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql, params);
-        SqlLogs.log(sql, SqlStatementType.DELETE, result, start, params);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.DELETE, result, start, params);
         return result;
     }
 
@@ -493,13 +505,15 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 根据ID删除
      *
      * @param id
+     *
      * @return
      */
     public int delete(ID id, Class<T> tClass) {
         long start = System.currentTimeMillis();
         String sql = "DELETE FROM " + getTable(tClass) + " WHERE id = ?";
         int k = execute(sql, id);
-        SqlLogs.log(sql, SqlStatementType.UPDATE, k, start, id);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.UPDATE, k, start, id);
         return k;
     }
 
@@ -507,6 +521,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 新增实体
      *
      * @param entity
+     *
      * @return
      */
     public T insert(T entity, Class<T> tClass) {
@@ -525,20 +540,20 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                     isAutomatic = true;
                     setMethod = customField.getSetMethod();
                     type = customField.getType();
-                    if (!TypeConvert.isNull(value)) {
+                    if (!Strings.isNull(value)) {
                         logger.error("自增主键不能设置ID！");
                         return null;
                     }
                 } else {
                     if (customField.isPrimaryKey()) {
-                        if (TypeConvert.isNull(value)) {
+                        if (Strings.isNull(value)) {
                             logger.error("非自增主键未设置ID！");
                             return null;
                         }
                     }
-                    if (!TypeConvert.isNull(value)) {
+                    if (!Strings.isNull(value)) {
                         fields.append(customField.getName() + ",");
-                        if (StringUtils.isNumeric(value.toString())) {
+                        if (Strings.isNumeric(value.toString())) {
                             values.append(customField.getValue() + ",");
                         } else {
                             values.append("'" + customField.getValue() + "',");
@@ -584,7 +599,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         } else {
             k = execute(sql);
         }
-        SqlLogs.log(sql, SqlStatementType.INSERT, k, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.INSERT, k, start);
         if (k > 0) {
             return entity;
         }
@@ -595,6 +611,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 修改实体
      *
      * @param entity
+     *
      * @return
      */
     public T update(T entity, Class<T> tClass) {
@@ -606,14 +623,14 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             if (!customField.isTransient()) {
                 Object value = customField.getValue();
                 if (customField.isPrimaryKey()) {
-                    if (TypeConvert.isNull(value)) {
+                    if (Strings.isNull(value)) {
                         logger.error("实体类ID为空！");
                         return null;
                     }
                     id = (ID) value;
                 } else {
                     if (value != null) {
-                        if (StringUtils.isNumeric(value.toString())) {
+                        if (Strings.isNumeric(value.toString())) {
                             set.append(customField.getName() + "=" + value + ",");
                         } else {
                             set.append(customField.getName() + "='" + value + "',");
@@ -628,7 +645,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         }
         String sql = "UPDATE " + getTable(tClass) + set.toString().substring(0, set.toString().length() - 1) + " WHERE id = ?";
         int k = execute(sql, id);
-        SqlLogs.log(sql, SqlStatementType.UPDATE, k, start, id);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.UPDATE, k, start, id);
         if (k > 0) {
             return entity;
         }
@@ -652,12 +670,12 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                 customField.setType(type);
             }
             try {
-                customField.setGetMethod(tClass.getMethod("get" + TypeConvert.getMethodName(customField.getFieldName())));
-                customField.setSetMethod(tClass.getMethod("set" + TypeConvert.getMethodName(customField.getFieldName()), new Class[]{field.getType()}));
+                customField.setGetMethod(tClass.getMethod("get" + Strings.capitalize(customField.getFieldName())));
+                customField.setSetMethod(tClass.getMethod("set" + Strings.capitalize(customField.getFieldName()), new Class[]{field.getType()}));
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
-            if (!TypeConvert.isNull(entity)) {
+            if (!Strings.isNull(entity)) {
                 try {
                     customField.setValue(customField.getGetMethod().invoke(entity));
                 } catch (IllegalAccessException e) {
@@ -676,10 +694,10 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             }
             if (field.isAnnotationPresent(Fields.class)) {
                 Fields fields1 = field.getAnnotation(Fields.class);
-                customField.setName(TypeConvert.isNull(fields1.name()) ? TypeConvert.humpToUnderline(field.getName()) : fields1.name());
+                customField.setName(Strings.isNull(fields1.name()) ? Strings.camelToUnderline(field.getName()) : fields1.name());
             } else {
                 if (!field.isAnnotationPresent(Id.class)) {
-                    customField.setName(TypeConvert.humpToUnderline(field.getName()));
+                    customField.setName(Strings.camelToUnderline(field.getName()));
                 }
             }
             if (field.isAnnotationPresent(Transient.class)) {
@@ -691,6 +709,5 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         }
         return customFields;
     }
-
 }
 

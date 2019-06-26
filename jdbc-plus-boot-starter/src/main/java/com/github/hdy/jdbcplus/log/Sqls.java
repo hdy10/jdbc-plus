@@ -1,6 +1,6 @@
 package com.github.hdy.jdbcplus.log;
 
-import org.apache.commons.lang3.StringUtils;
+import com.github.hdy.common.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class Sqls {
         String selectKey = "select"; // select 关键字
         String fromKey = "from"; // from 关键字
         // 带有group by 的进行特殊处理，直接返回
-        if (StringUtils.containsIgnoreCase(sql, "group by")) {
+        if (Strings.isContainsIgnoreCase(sql, "group by")) {
             return prefix + fromKey + "(" + sql + ")" + TABLE_ALIAS;
         }
         Integer fromRelIndex = upperCaseSql.indexOf(fromKey);// 主sql中 from 关键字的位置
@@ -35,11 +35,11 @@ public class Sqls {
             fromRelIndex -= fromKey.length();
         }
         String afterFromSql = sql.substring(fromRelIndex); // 主sql from 关键字真实位置之后的sql语句
-        if (StringUtils.contains(upperCaseSql, ")")) {
-            upperCaseSql = StringUtils.substringAfterLast(upperCaseSql, ")"); // 查找最后一个反括号；跳过子查询中的 order by 语句
+        if (Strings.isContains(upperCaseSql, ")")) {
+            upperCaseSql = Strings.substringAfterLast(upperCaseSql, ")"); // 查找最后一个反括号；跳过子查询中的 order by 语句
         }
-        if (StringUtils.containsIgnoreCase(upperCaseSql, "order")) {
-            String query = StringUtils.substring(upperCaseSql, StringUtils.indexOfIgnoreCase(upperCaseSql, " order by ", 0));
+        if (Strings.isContainsIgnoreCase(upperCaseSql, "order")) {
+            String query = Strings.substring(upperCaseSql, Strings.indexOfIgnoreCase(upperCaseSql, " order by "));
             afterFromSql = afterFromSql.substring(0, afterFromSql.length() - query.length());// 删除主sql 中的 order by 之后的语句；结果为 from 到 order by 之前的语句
         }
         sql = countSql.append(prefix + afterFromSql).toString(); // 拼装sql

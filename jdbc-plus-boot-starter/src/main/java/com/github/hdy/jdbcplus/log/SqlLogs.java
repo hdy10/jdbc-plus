@@ -1,7 +1,7 @@
 package com.github.hdy.jdbcplus.log;
 
 
-import com.github.hdy.jdbcplus.util.Logs;
+import com.github.hdy.common.util.Logs;
 
 import java.util.Map;
 

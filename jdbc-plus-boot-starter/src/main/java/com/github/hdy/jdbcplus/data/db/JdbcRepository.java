@@ -1,6 +1,6 @@
 package com.github.hdy.jdbcplus.data.db;
 
-import com.github.hdy.jdbcplus.result.PageResults;
+import com.github.hdy.jdbcplus.result.Page;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.stereotype.Component;
 
@@ -109,23 +109,22 @@ interface JdbcRepository<T, ID> {
      * 分页查询
      *
      * @param sql
-     * @param toEntity   结果是否是转实体
      * @param pageNumber 页码
      * @param pageSize   页数量
      * @return
      */
-    PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Class<T> tClass);
+    Page<T> page(String sql, Integer pageNumber, Integer pageSize, Class<T> tClass);
 
-    PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Class<T> tClass, Object... params);
+    Page<T> page(String sql, Integer pageNumber, Integer pageSize, Class<T> tClass, Object... params);
 
-    PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Map<String, ?> params, Class<T> tClass);
+    Page<T> page(String sql, Integer pageNumber, Integer pageSize, Map<String, ?> params, Class<T> tClass);
 
     /**
      * 根据实体分页查询
      */
-    PageResults page(Integer pageNumber, Integer pageSize, Class<T> tClass);
+    Page<T> page(Integer pageNumber, Integer pageSize, Class<T> tClass);
 
-    PageResults page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass);
+    Page<T> page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass);
 
     /**
      * 查询总量

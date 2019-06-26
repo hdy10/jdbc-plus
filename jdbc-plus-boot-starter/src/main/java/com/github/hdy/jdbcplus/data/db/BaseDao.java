@@ -1,7 +1,7 @@
 package com.github.hdy.jdbcplus.data.db;
 
-import com.github.hdy.jdbcplus.result.PageResults;
-import com.github.hdy.jdbcplus.util.TypeConvert;
+import com.github.hdy.common.util.Strings;
+import com.github.hdy.jdbcplus.result.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
@@ -18,10 +18,9 @@ public class BaseDao<T, ID> {
 
     private Class<T> tClass;
 
-
     @PostConstruct
     public void init() {
-        this.tClass = TypeConvert.getClassGenricType(getClass());
+        this.tClass = Strings.getClassGenricType(getClass());
     }
 
     /**
@@ -124,6 +123,7 @@ public class BaseDao<T, ID> {
      *
      * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
      * @param fieldName 字段名
+     *
      * @return
      */
     public Object getSingleValueBySqlAndFieldName(String sql, String fieldName) {
@@ -151,31 +151,31 @@ public class BaseDao<T, ID> {
      * 分页查询
      *
      * @param sql
-     * @param toEntity   结果是否是转实体
      * @param pageNumber 页码
      * @param pageSize   页数量
+     *
      * @return
      */
-    public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize) {
-        return jdbcRepository.page(sql, toEntity, pageNumber, pageSize, tClass);
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize) {
+        return jdbcRepository.page(sql, pageNumber, pageSize, tClass);
     }
 
-    public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Object... params) {
-        return jdbcRepository.page(sql, toEntity, pageNumber, pageSize, tClass, params);
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Object... params) {
+        return jdbcRepository.page(sql, pageNumber, pageSize, tClass, params);
     }
 
-    public PageResults page(String sql, boolean toEntity, Integer pageNumber, Integer pageSize, Map<String, ?> params) {
-        return jdbcRepository.page(sql, toEntity, pageNumber, pageSize, params, tClass);
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Map<String, ?> params) {
+        return jdbcRepository.page(sql, pageNumber, pageSize, params, tClass);
     }
 
     /**
      * 根据实体分页查询
      */
-    public PageResults page(Integer pageNumber, Integer pageSize) {
+    public Page<T> page(Integer pageNumber, Integer pageSize) {
         return jdbcRepository.page(pageNumber, pageSize, tClass);
     }
 
-    public PageResults page(T entity, Integer pageNumber, Integer pageSize) {
+    public Page<T> page(T entity, Integer pageNumber, Integer pageSize) {
         return jdbcRepository.page(entity, pageNumber, pageSize, tClass);
     }
 
@@ -183,6 +183,7 @@ public class BaseDao<T, ID> {
      * 查询总量
      *
      * @param sql
+     *
      * @return
      */
     public Integer count(String sql) {
@@ -201,6 +202,7 @@ public class BaseDao<T, ID> {
      * 执行SQL
      *
      * @param sql
+     *
      * @return
      */
     public int execute(String sql) {
@@ -219,6 +221,7 @@ public class BaseDao<T, ID> {
      * 执行插入SQL
      *
      * @param sql
+     *
      * @return
      */
     public int insert(String sql) {
@@ -237,6 +240,7 @@ public class BaseDao<T, ID> {
      * 执行修改SQL
      *
      * @param sql
+     *
      * @return
      */
     public int update(String sql) {
@@ -256,6 +260,7 @@ public class BaseDao<T, ID> {
      *
      * @param sql
      * @param batchPreparedStatementSetter
+     *
      * @return
      */
     public int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter) {
@@ -266,6 +271,7 @@ public class BaseDao<T, ID> {
      * 执行删除SQL
      *
      * @param sql
+     *
      * @return
      */
     public int delete(String sql) {
@@ -284,6 +290,7 @@ public class BaseDao<T, ID> {
      * 根据ID删除
      *
      * @param id
+     *
      * @return
      */
     public int delete(ID id) {
@@ -294,6 +301,7 @@ public class BaseDao<T, ID> {
      * 新增实体
      *
      * @param entity
+     *
      * @return
      */
     public T insert(T entity) {
@@ -304,9 +312,11 @@ public class BaseDao<T, ID> {
      * 修改实体
      *
      * @param entity
+     *
      * @return
      */
     public T update(T entity) {
         return jdbcRepository.update(entity, tClass);
     }
+
 }
