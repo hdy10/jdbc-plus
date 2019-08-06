@@ -10,8 +10,7 @@ import com.github.hdy.jdbcplus.log.SqlStatementType;
 import com.github.hdy.jdbcplus.log.Sqls;
 import com.github.hdy.jdbcplus.result.Page;
 import com.github.hdy.jdbcplus.util.Pager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +39,8 @@ import java.util.Map;
  * @author 贺鹏
  */
 @Service
+@Slf4j
 public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
-    private final Logger logger = LogManager.getLogger(JdbcRepositoryImpl.class.getName());
 
     @Value("${jdbc.log:true}")
     private Boolean jdbcLog;
@@ -56,7 +55,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 开始事务
      */
     public void beginTransaction() {
-        logger.info("----------------------  手动开启事务操作  ----------------------");
+        log.info("----------------------  手动开启事务操作  ----------------------");
         try {
             jdbcTemplate.getDataSource().getConnection().setAutoCommit(false);
         } catch (SQLException e) {
@@ -69,7 +68,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 回滚
      */
     public void rollBack() {
-        logger.info("----------------------  Error:100  操作失败,进行回滚操作  ----------------------");
+        log.info("----------------------  Error:100  操作失败,进行回滚操作  ----------------------");
         Connection conn = null;
         try {
             conn = jdbcTemplate.getDataSource().getConnection();
@@ -103,7 +102,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             table_name = Strings.camelToUnderline(clazz.getSimpleName());
         }
         if (Strings.isNull(table_name))
-            logger.error(" table annotation should be have [ name ] param : {} ", " Failed to get table name ");
+            log.error(" table annotation should be have [ name ] param : {} ", " Failed to get table name ");
         return table_name;
     }
 
@@ -115,7 +114,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public T get(ID id, Class<T> tClass) {
         String sql = "select * from " + getTable(tClass) + " where id = ? limit 1";
         List<T> list = findBySql(sql, tClass, id);
-        if (list == null && list.size() == 0)
+        if (list == null || list.size() == 0)
             return null;
         return list.get(0);
     }
@@ -129,7 +128,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public T getByField(String field, Object value, Class<T> tClass) {
         String sql = "select * from " + getTable(tClass) + " where " + field + " = ? limit 1";
         List<T> list = findBySql(sql, tClass, value);
-        if (list == null && list.size() == 0)
+        if (list == null || list.size() == 0)
             return null;
         return list.get(0);
     }
@@ -141,21 +140,21 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      */
     public T getBySql(String sql, Class<T> tClass) {
         List<T> list = findBySql(sql, tClass);
-        if (list == null && list.size() == 0)
+        if (list == null || list.size() == 0)
             return null;
         return list.get(0);
     }
 
     public T getBySql(String sql, Class<T> tClass, Object... params) {
         List<T> list = findBySql(sql, tClass, params);
-        if (list == null && list.size() == 0)
+        if (list == null || list.size() == 0)
             return null;
         return list.get(0);
     }
 
     public T getBySql(String sql, Map<String, ?> params, Class<T> tClass) {
         List<T> list = findBySql(sql, params, tClass);
-        if (list == null && list.size() == 0)
+        if (list == null || list.size() == 0)
             return null;
         return list.get(0);
     }
@@ -541,13 +540,13 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                     setMethod = customField.getSetMethod();
                     type = customField.getType();
                     if (!Strings.isNull(value)) {
-                        logger.error("自增主键不能设置ID！");
+                        log.error("自增主键不能设置ID！");
                         return null;
                     }
                 } else {
                     if (customField.isPrimaryKey()) {
                         if (Strings.isNull(value)) {
-                            logger.error("非自增主键未设置ID！");
+                            log.error("非自增主键未设置ID！");
                             return null;
                         }
                     }
@@ -563,7 +562,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             }
         }
         if (!fields.toString().endsWith(",") || !values.toString().endsWith(",")) {
-            logger.error("没有找到需要新增的字段或值！");
+            log.error("没有找到需要新增的字段或值！");
             return null;
         }
         String fieldStr = fields.toString().substring(0, fields.toString().length() - 1) + ")";
@@ -624,7 +623,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                 Object value = customField.getValue();
                 if (customField.isPrimaryKey()) {
                     if (Strings.isNull(value)) {
-                        logger.error("实体类ID为空！");
+                        log.error("实体类ID为空！");
                         return null;
                     }
                     id = (ID) value;
@@ -640,7 +639,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             }
         }
         if (!set.toString().endsWith(",")) {
-            logger.error("没有找到要修改的字段！");
+            log.error("没有找到要修改的字段！");
             return null;
         }
         String sql = "UPDATE " + getTable(tClass) + set.toString().substring(0, set.toString().length() - 1) + " WHERE id = ?";

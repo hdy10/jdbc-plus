@@ -9,8 +9,7 @@ package com.github.hdy.jdbcplus.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.hdy.common.util.Strings;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -25,8 +24,8 @@ import java.sql.SQLException;
  * 连接池配置
  */
 @Configuration
+@Slf4j
 public class JdbcDruidDBConfig {
-    private static final Logger logger = LogManager.getLogger(JdbcDruidDBConfig.class.getName());
     @Value("${spring.datasource.driverClassName:null}")
     private String driverClassName;
 
@@ -80,7 +79,7 @@ public class JdbcDruidDBConfig {
                                  @Value("${spring.datasource.password:}") String password) {
         DruidDataSource datasource = new DruidDataSource();
         if (!Strings.isNull(url, username)) {
-            logger.info("\u001b[35m\ndataSource druid 配置注入：\nurl:{}\nusername:{}\npassword:{}\u001b[0m", url, username, password);
+            log.info("\u001b[35m\ndataSource druid 配置注入：\nurl:{}\nusername:{}\npassword:{}\u001b[0m", url, username, password);
         }
         datasource.setUrl(url);
         datasource.setUsername(username);
@@ -101,7 +100,7 @@ public class JdbcDruidDBConfig {
         try {
             datasource.setFilters(filters);
         } catch (SQLException e) {
-            logger.error("druid configuration initialization filter", e);
+            log.error("druid configuration initialization filter", e);
         }
         datasource.setConnectionProperties(connectionProperties);
         return datasource;

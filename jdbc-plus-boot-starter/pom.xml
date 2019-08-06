@@ -6,10 +6,10 @@
 
     <groupId>com.github.hdy10</groupId>
     <artifactId>jdbc-plus-boot-starter</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
     <name>jdbc-plus-boot-starter</name>
     <description>基于springboot的jdbcTemplate简单封装</description>
-    <url>https://github.com/hdy10/jdbc-plus-boot-starter/</url>
+    <url></url>
     <packaging>jar</packaging>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -21,7 +21,7 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>https://github.com/hdy10/jdbc-plus-boot-starter</url>
+            <url></url>
         </license>
     </licenses>
     <developers>
@@ -31,9 +31,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:https://github.com/hdy10/jdbc-plus-boot-starter.git</connection>
-        <developerConnection>scm:git:https://github.com/hdy10/jdbc-plus-boot-starter.git</developerConnection>
-        <url>https://github.com/hdy10/jdbc-plus-boot-starter.git</url>
+        <connection></connection>
+        <developerConnection></developerConnection>
+        <url></url>
     </scm>
 
     <properties>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>com.github.hdy10</groupId>
             <artifactId>boot-common</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.4</version>
         </dependency>
     </dependencies>
     <profiles>
