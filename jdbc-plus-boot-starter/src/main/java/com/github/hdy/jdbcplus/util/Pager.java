@@ -1,6 +1,5 @@
 package com.github.hdy.jdbcplus.util;
 
-import com.github.hdy.common.util.Strings;
 import com.github.hdy.jdbcplus.data.annotation.Transient;
 import lombok.Getter;
 import lombok.Setter;

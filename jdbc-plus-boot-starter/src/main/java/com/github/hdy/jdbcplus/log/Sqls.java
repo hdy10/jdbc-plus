@@ -1,6 +1,6 @@
 package com.github.hdy.jdbcplus.log;
 
-import com.github.hdy.common.util.Strings;
+import com.github.hdy.jdbcplus.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;

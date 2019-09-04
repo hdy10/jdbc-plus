@@ -8,7 +8,7 @@ package com.github.hdy.jdbcplus.config;
  */
 
 import com.alibaba.druid.pool.DruidDataSource;
-import com.github.hdy.common.util.Strings;
+import com.github.hdy.jdbcplus.util.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

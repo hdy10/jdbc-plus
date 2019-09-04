@@ -1,6 +1,6 @@
 package com.github.hdy.jdbcplus.data.db;
 
-import com.github.hdy.common.util.Strings;
+import com.github.hdy.jdbcplus.util.Strings;
 import com.github.hdy.jdbcplus.data.annotation.Entity;
 import com.github.hdy.jdbcplus.data.annotation.Fields;
 import com.github.hdy.jdbcplus.data.annotation.Id;

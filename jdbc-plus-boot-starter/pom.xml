@@ -6,7 +6,7 @@
 
     <groupId>com.github.hdy10</groupId>
     <artifactId>jdbc-plus-boot-starter</artifactId>
-    <version>1.5.3</version>
+    <version>1.5.4</version>
     <name>jdbc-plus-boot-starter</name>
     <description>基于springboot的jdbcTemplate简单封装</description>
     <url></url>
@@ -66,9 +66,9 @@
             <version>1.18.6</version>
         </dependency>
         <dependency>
-            <groupId>com.github.hdy10</groupId>
-            <artifactId>boot-common</artifactId>
-            <version>1.0.4</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.4</version>
         </dependency>
     </dependencies>
     <profiles>
