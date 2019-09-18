@@ -13,6 +13,9 @@ public class CustomField {
     private Object value;
     private String type;
     private boolean isTransient;
+    private boolean isLike;
+    private boolean isLikeLeft;
+    private boolean isLikeRight;
 
     public boolean isPrimaryKey() {
         return primaryKey;
@@ -84,5 +87,29 @@ public class CustomField {
 
     public void setTransient(boolean aTransient) {
         isTransient = aTransient;
+    }
+
+    public boolean isLike() {
+        return isLike;
+    }
+
+    public void setLike(boolean like) {
+        isLike = like;
+    }
+
+    public boolean isLikeLeft() {
+        return isLikeLeft;
+    }
+
+    public void setLikeLeft(boolean likeLeft) {
+        isLikeLeft = likeLeft;
+    }
+
+    public boolean isLikeRight() {
+        return isLikeRight;
+    }
+
+    public void setLikeRight(boolean likeRight) {
+        isLikeRight = likeRight;
     }
 }

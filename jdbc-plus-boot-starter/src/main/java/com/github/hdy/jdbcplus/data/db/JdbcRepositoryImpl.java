@@ -1,16 +1,14 @@
 package com.github.hdy.jdbcplus.data.db;
 
-import com.github.hdy.jdbcplus.util.Strings;
-import com.github.hdy.jdbcplus.data.annotation.Entity;
-import com.github.hdy.jdbcplus.data.annotation.Fields;
-import com.github.hdy.jdbcplus.data.annotation.Id;
-import com.github.hdy.jdbcplus.data.annotation.Transient;
+import com.github.hdy.jdbcplus.data.annotation.*;
 import com.github.hdy.jdbcplus.log.SqlLogs;
 import com.github.hdy.jdbcplus.log.SqlStatementType;
 import com.github.hdy.jdbcplus.log.Sqls;
 import com.github.hdy.jdbcplus.result.Page;
 import com.github.hdy.jdbcplus.util.Pager;
+import com.github.hdy.jdbcplus.util.Strings;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -256,8 +255,9 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      *
      * @return
      */
-    public Object getSingleValueBySqlAndFieldName(String sql, String fieldName) {
-        return queryForMap(sql).get(fieldName);
+    public String getSingleValueBySqlAndFieldName(String sql, String fieldName) {
+        Object value = queryForMap(sql).get(fieldName);
+        return Strings.isNull(value) ? null : value.toString();
     }
 
     /**
@@ -336,22 +336,42 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         return page(sql, pageNumber, pageSize, tClass);
     }
 
-    public Page<T> page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass) {
-        StringBuffer sql = new StringBuffer("select * from " + getTable(tClass) + " where 1 = 1");
-        CustomField[] customFields = getFieldNames(entity, tClass);
+    public Page<T> page(T entity) {
+        StringBuffer sql = new StringBuffer("select * from " + getTable(entity.getClass()) + " where 1 = 1");
+        CustomField[] customFields = getFieldNames(entity, (Class<T>) entity.getClass());
         for (CustomField customField : customFields) {
             if (!customField.isTransient()) {
                 Object value = customField.getValue();
                 if (!Strings.isNull(value)) {
-                    if (Strings.isNumeric(value.toString())) {
-                        sql.append(" and " + customField.getName() + " = " + value);
+                    if (!customField.isLike() && !customField.isLikeLeft() && !customField.isLikeRight()) {
+                        if (Strings.isNumeric(value.toString())) {
+                            sql.append(" and " + customField.getName() + " = " + value);
+                        } else {
+                            sql.append(" and " + customField.getName() + " = '" + value + "'");
+                        }
                     } else {
-                        sql.append(" and " + customField.getName() + " = " + value);
+                        if (customField.isLike()) {
+                            sql.append(" and " + customField.getName() + " like '%" + value + "%'");
+                        }
+                        if (customField.isLikeLeft()) {
+                            sql.append(" and " + customField.getName() + " like '%" + value + "'");
+                        }
+                        if (customField.isLikeRight()) {
+                            sql.append(" and " + customField.getName() + " like '" + value + "%'");
+                        }
                     }
                 }
             }
         }
-        return page(sql.toString(), pageNumber, pageSize, tClass);
+        BaseEntity baseEntity = new BaseEntity();
+        BeanUtils.copyProperties(entity, baseEntity);
+        if (!Strings.isNull(baseEntity.getOrderByField())) {
+            sql.append(" order by " + baseEntity.getOrderByField());
+            if (!Strings.isNull(baseEntity.getOrderByValue())) {
+                sql.append(" " + baseEntity.getOrderByValue());
+            }
+        }
+        return page(sql.toString(), baseEntity.getPageNumber(), baseEntity.getPageSize(), (Class<T>) entity.getClass());
     }
 
     /**
@@ -480,7 +500,8 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     public int delete(String sql) {
         long start = SqlLogs.getCurrentTimeMillis();
         int result = execute(sql);
-        SqlLogs.log(sql, SqlStatementType.DELETE, result, start);
+        if (jdbcLog)
+            SqlLogs.log(sql, SqlStatementType.DELETE, result, start);
         return result;
     }
 
@@ -512,7 +533,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         String sql = "DELETE FROM " + getTable(tClass) + " WHERE id = ?";
         int k = execute(sql, id);
         if (jdbcLog)
-            SqlLogs.log(sql, SqlStatementType.UPDATE, k, start, id);
+            SqlLogs.log(sql, SqlStatementType.DELETE, k, start, id);
         return k;
     }
 
@@ -607,6 +628,25 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
     }
 
     /**
+     * 新增List<T>实体
+     *
+     * @param entitys
+     * @param tClass
+     *
+     * @return
+     */
+    public List<T> insert(List<T> entitys, Class<T> tClass) {
+        List<T> result = new ArrayList<>();
+        if (entitys.size() == 0) {
+            return result;
+        }
+        for (T entity : entitys) {
+            result.add(insert(entity, tClass));
+        }
+        return result;
+    }
+
+    /**
      * 修改实体
      *
      * @param entity
@@ -650,6 +690,25 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             return entity;
         }
         return null;
+    }
+
+    /**
+     * 修改List<T>实体
+     *
+     * @param entitys
+     * @param tClass
+     *
+     * @return
+     */
+    public List<T> update(List<T> entitys, Class<T> tClass) {
+        List<T> result = new ArrayList<>();
+        if (entitys.size() == 0) {
+            return result;
+        }
+        for (T entity : entitys) {
+            result.add(update(entity, tClass));
+        }
+        return result;
     }
 
     /**
@@ -699,10 +758,29 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                     customField.setName(Strings.camelToUnderline(field.getName()));
                 }
             }
+            // 是否是扩展字段
             if (field.isAnnotationPresent(Transient.class)) {
                 customField.setTransient(true);
             } else {
                 customField.setTransient(false);
+            }
+            // 查询条件(like)
+            if (field.isAnnotationPresent(Like.class)) {
+                customField.setLike(true);
+            } else {
+                customField.setLike(false);
+            }
+            // 查询条件(like) 左%
+            if (field.isAnnotationPresent(LikeLeft.class)) {
+                customField.setLikeLeft(true);
+            } else {
+                customField.setLikeLeft(false);
+            }
+            // 查询条件(like) 右%
+            if (field.isAnnotationPresent(LikeRight.class)) {
+                customField.setLikeRight(true);
+            } else {
+                customField.setLikeRight(false);
             }
             customFields[k++] = customField;
         }

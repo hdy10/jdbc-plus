@@ -1,7 +1,7 @@
 package com.github.hdy.jdbcplus.data.db;
 
-import com.github.hdy.jdbcplus.util.Strings;
 import com.github.hdy.jdbcplus.result.Page;
+import com.github.hdy.jdbcplus.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
@@ -126,7 +126,7 @@ public class BaseDao<T, ID> {
      *
      * @return
      */
-    public Object getSingleValueBySqlAndFieldName(String sql, String fieldName) {
+    public String getSingleValueBySqlAndFieldName(String sql, String fieldName) {
         return jdbcRepository.getSingleValueBySqlAndFieldName(sql, fieldName);
     }
 
@@ -175,8 +175,8 @@ public class BaseDao<T, ID> {
         return jdbcRepository.page(pageNumber, pageSize, tClass);
     }
 
-    public Page<T> page(T entity, Integer pageNumber, Integer pageSize) {
-        return jdbcRepository.page(entity, pageNumber, pageSize, tClass);
+    public Page<T> page(T entity) {
+        return jdbcRepository.page(entity);
     }
 
     /**
@@ -309,6 +309,17 @@ public class BaseDao<T, ID> {
     }
 
     /**
+     * 新增List<T>实体
+     *
+     * @param entity
+     *
+     * @return
+     */
+    public List<T> insert(List<T> entitys) {
+        return jdbcRepository.insert(entitys, tClass);
+    }
+
+    /**
      * 修改实体
      *
      * @param entity
@@ -319,4 +330,14 @@ public class BaseDao<T, ID> {
         return jdbcRepository.update(entity, tClass);
     }
 
+    /**
+     * 修改List<T>实体
+     *
+     * @param entity
+     *
+     * @return
+     */
+    public List<T> update(List<T> entitys) {
+        return jdbcRepository.update(entitys, tClass);
+    }
 }

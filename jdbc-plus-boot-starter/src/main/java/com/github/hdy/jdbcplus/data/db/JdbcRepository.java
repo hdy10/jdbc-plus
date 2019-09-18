@@ -90,9 +90,10 @@ interface JdbcRepository<T, ID> {
      *
      * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
      * @param fieldName 字段名
+     *
      * @return
      */
-    Object getSingleValueBySqlAndFieldName(String sql, String fieldName);
+    String getSingleValueBySqlAndFieldName(String sql, String fieldName);
 
     /**
      * 根据Sql查询集合
@@ -111,6 +112,7 @@ interface JdbcRepository<T, ID> {
      * @param sql
      * @param pageNumber 页码
      * @param pageSize   页数量
+     *
      * @return
      */
     Page<T> page(String sql, Integer pageNumber, Integer pageSize, Class<T> tClass);
@@ -124,12 +126,13 @@ interface JdbcRepository<T, ID> {
      */
     Page<T> page(Integer pageNumber, Integer pageSize, Class<T> tClass);
 
-    Page<T> page(T entity, Integer pageNumber, Integer pageSize, Class<T> tClass);
+    Page<T> page(T entity);
 
     /**
      * 查询总量
      *
      * @param sql
+     *
      * @return
      */
     Integer count(String sql);
@@ -142,6 +145,7 @@ interface JdbcRepository<T, ID> {
      * 执行SQL
      *
      * @param sql
+     *
      * @return
      */
     int execute(String sql);
@@ -154,6 +158,7 @@ interface JdbcRepository<T, ID> {
      * 执行插入SQL
      *
      * @param sql
+     *
      * @return
      */
     int insert(String sql);
@@ -166,6 +171,7 @@ interface JdbcRepository<T, ID> {
      * 执行修改SQL
      *
      * @param sql
+     *
      * @return
      */
     int update(String sql);
@@ -179,6 +185,7 @@ interface JdbcRepository<T, ID> {
      *
      * @param sql
      * @param batchPreparedStatementSetter
+     *
      * @return
      */
     int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter);
@@ -187,6 +194,7 @@ interface JdbcRepository<T, ID> {
      * 执行删除SQL
      *
      * @param sql
+     *
      * @return
      */
     int delete(String sql);
@@ -199,6 +207,7 @@ interface JdbcRepository<T, ID> {
      * 根据ID删除
      *
      * @param id
+     *
      * @return
      */
     int delete(ID id, Class<T> tClass);
@@ -207,15 +216,36 @@ interface JdbcRepository<T, ID> {
      * 新增实体
      *
      * @param entity
+     *
      * @return
      */
     T insert(T entity, Class<T> tClass);
+
+
+    /**
+     * 新增List<T>实体
+     *
+     * @param entity
+     *
+     * @return
+     */
+    List<T> insert(List<T> entitys, Class<T> tClass);
 
     /**
      * 修改实体
      *
      * @param entity
+     *
      * @return
      */
     T update(T entity, Class<T> tClass);
+
+    /**
+     * 修改List<T>实体
+     *
+     * @param entity
+     *
+     * @return
+     */
+    List<T> update(List<T> entitys, Class<T> tClass);
 }
