@@ -55,6 +55,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.getBySql(sql, tClass, params);
     }
 
+    public T getBySql(String sql, List<Object> params) {
+        return getBySql(sql, params.toArray());
+    }
+
     public T getBySql(String sql, Map<String, ?> params) {
         return jdbcRepository.getBySql(sql, params, tClass);
     }
@@ -89,6 +93,11 @@ public class BaseDao<T, ID> {
         return jdbcRepository.findBySql(sql, tClass, params);
     }
 
+    public List<T> findBySql(String sql, List<Object> params) {
+        return findBySql(sql, params.toArray());
+    }
+
+
     /**
      * 根据Sql查询实体集合
      *
@@ -114,6 +123,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.queryForMap(sql, params);
     }
 
+    public Map<String, Object> queryForMap(String sql, List<Object> params) {
+        return queryForMap(sql, params.toArray());
+    }
+
     public Map<String, Object> queryForMap(String sql, Map<String, ?> params) {
         return jdbcRepository.queryForMap(sql, params);
     }
@@ -123,7 +136,6 @@ public class BaseDao<T, ID> {
      *
      * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
      * @param fieldName 字段名
-     *
      * @return
      */
     public String getSingleValueBySqlAndFieldName(String sql, String fieldName) {
@@ -143,6 +155,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.queryForList(sql, params);
     }
 
+    public List<Map<String, Object>> queryForList(String sql, List<Object> params) {
+        return queryForList(sql, params.toArray());
+    }
+
     public List<Map<String, Object>> queryForList(String sql, Map<String, ?> params) {
         return jdbcRepository.queryForList(sql, params);
     }
@@ -153,7 +169,6 @@ public class BaseDao<T, ID> {
      * @param sql
      * @param pageNumber 页码
      * @param pageSize   页数量
-     *
      * @return
      */
     public Page<T> page(String sql, Integer pageNumber, Integer pageSize) {
@@ -162,6 +177,10 @@ public class BaseDao<T, ID> {
 
     public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Object... params) {
         return jdbcRepository.page(sql, pageNumber, pageSize, tClass, params);
+    }
+
+    public Page<T> page(String sql, Integer pageNumber, Integer pageSize, List<Object> params) {
+        return page(sql, pageNumber, pageSize, params.toArray());
     }
 
     public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Map<String, ?> params) {
@@ -183,7 +202,6 @@ public class BaseDao<T, ID> {
      * 查询总量
      *
      * @param sql
-     *
      * @return
      */
     public Integer count(String sql) {
@@ -194,6 +212,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.count(sql, params);
     }
 
+    public Integer count(String sql, List<Object> params) {
+        return count(sql, params.toArray());
+    }
+
     public Integer count(String sql, Map<String, ?> params) {
         return jdbcRepository.count(sql, params);
     }
@@ -202,7 +224,6 @@ public class BaseDao<T, ID> {
      * 执行SQL
      *
      * @param sql
-     *
      * @return
      */
     public int execute(String sql) {
@@ -213,6 +234,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.execute(sql, params);
     }
 
+    public int execute(String sql, List<Object> params) {
+        return execute(sql, params.toArray());
+    }
+
     public int execute(String sql, Map<String, ?> params) {
         return jdbcRepository.execute(sql, params);
     }
@@ -221,7 +246,6 @@ public class BaseDao<T, ID> {
      * 执行插入SQL
      *
      * @param sql
-     *
      * @return
      */
     public int insert(String sql) {
@@ -232,6 +256,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.insert(sql, params);
     }
 
+    public int insert(String sql, List<Object> params) {
+        return insert(sql, params.toArray());
+    }
+
     public int insert(String sql, Map<String, ?> params) {
         return jdbcRepository.insert(sql, params);
     }
@@ -240,7 +268,6 @@ public class BaseDao<T, ID> {
      * 执行修改SQL
      *
      * @param sql
-     *
      * @return
      */
     public int update(String sql) {
@@ -249,6 +276,10 @@ public class BaseDao<T, ID> {
 
     public int update(String sql, Object... params) {
         return jdbcRepository.update(sql, params);
+    }
+
+    public int update(String sql, List<Object> params) {
+        return update(sql, params.toArray());
     }
 
     public int update(String sql, Map<String, ?> params) {
@@ -260,7 +291,6 @@ public class BaseDao<T, ID> {
      *
      * @param sql
      * @param batchPreparedStatementSetter
-     *
      * @return
      */
     public int[] batchUpdate(String sql, BatchPreparedStatementSetter batchPreparedStatementSetter) {
@@ -271,7 +301,6 @@ public class BaseDao<T, ID> {
      * 执行删除SQL
      *
      * @param sql
-     *
      * @return
      */
     public int delete(String sql) {
@@ -282,6 +311,10 @@ public class BaseDao<T, ID> {
         return jdbcRepository.delete(sql, params);
     }
 
+    public int delete(String sql, List<Object> params) {
+        return delete(sql, params.toArray());
+    }
+
     public int delete(String sql, Map<String, ?> params) {
         return jdbcRepository.delete(sql, params);
     }
@@ -290,7 +323,6 @@ public class BaseDao<T, ID> {
      * 根据ID删除
      *
      * @param id
-     *
      * @return
      */
     public int delete(ID id) {
@@ -301,7 +333,6 @@ public class BaseDao<T, ID> {
      * 新增实体
      *
      * @param entity
-     *
      * @return
      */
     public T insert(T entity) {
@@ -312,7 +343,6 @@ public class BaseDao<T, ID> {
      * 新增List<T>实体
      *
      * @param entity
-     *
      * @return
      */
     public List<T> insert(List<T> entitys) {
@@ -323,7 +353,6 @@ public class BaseDao<T, ID> {
      * 修改实体
      *
      * @param entity
-     *
      * @return
      */
     public T update(T entity) {
@@ -334,7 +363,6 @@ public class BaseDao<T, ID> {
      * 修改List<T>实体
      *
      * @param entity
-     *
      * @return
      */
     public List<T> update(List<T> entitys) {
