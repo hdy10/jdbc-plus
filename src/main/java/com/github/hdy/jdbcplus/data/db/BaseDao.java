@@ -342,7 +342,7 @@ public class BaseDao<T, ID> {
     /**
      * 新增List<T>实体
      *
-     * @param entity
+     * @param entitys
      * @return
      */
     public List<T> insert(List<T> entitys) {
@@ -362,7 +362,7 @@ public class BaseDao<T, ID> {
     /**
      * 修改List<T>实体
      *
-     * @param entity
+     * @param entitys
      * @return
      */
     public List<T> update(List<T> entitys) {
