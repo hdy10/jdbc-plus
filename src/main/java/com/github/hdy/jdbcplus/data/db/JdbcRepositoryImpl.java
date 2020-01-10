@@ -24,11 +24,10 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -252,7 +251,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      *
      * @param sql       带查询字段的sql,字段可取别名，fieldName与别名一致
      * @param fieldName 字段名
-     *
      * @return
      */
     public String getSingleValueBySqlAndFieldName(String sql, String fieldName) {
@@ -295,7 +293,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * @param sql
      * @param pageNumber 页码
      * @param pageSize   页数量
-     *
      * @return
      */
     public Page<T> page(String sql, Integer pageNumber, Integer pageSize, Class<T> tClass) {
@@ -378,7 +375,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 查询总量
      *
      * @param sql
-     *
      * @return
      */
     public Integer count(String sql) {
@@ -409,7 +405,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行SQL
      *
      * @param sql
-     *
      * @return
      */
     public int execute(String sql) {
@@ -428,7 +423,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行插入SQL
      *
      * @param sql
-     *
      * @return
      */
     public int insert(String sql) {
@@ -459,7 +453,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行修改SQL
      *
      * @param sql
-     *
      * @return
      */
     public int update(String sql) {
@@ -494,7 +487,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 执行删除SQL
      *
      * @param sql
-     *
      * @return
      */
     public int delete(String sql) {
@@ -525,7 +517,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 根据ID删除
      *
      * @param id
-     *
      * @return
      */
     public int delete(ID id, Class<T> tClass) {
@@ -537,11 +528,12 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         return k;
     }
 
+
+
     /**
      * 新增实体
      *
      * @param entity
-     *
      * @return
      */
     public T insert(T entity, Class<T> tClass) {
@@ -550,16 +542,18 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
         boolean isAutomatic = false;
         Method setMethod = null;
         String type = null;
+        String idType = null;
         StringBuffer fields = new StringBuffer(" (");
         StringBuffer values = new StringBuffer("(");
         for (CustomField customField : customFields) {
             if (!customField.isTransient()) {
                 Object value = customField.getValue();
+                type = customField.getType();
                 // 自增
                 if (customField.isAutomatic()) {
+                    idType = type;
                     isAutomatic = true;
                     setMethod = customField.getSetMethod();
-                    type = customField.getType();
                     if (!Strings.isNull(value)) {
                         log.error("自增主键不能设置ID！");
                         return null;
@@ -573,10 +567,27 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                     }
                     if (!Strings.isNull(value)) {
                         fields.append(customField.getName() + ",");
-                        if (Strings.isNumeric(value.toString())) {
-                            values.append(customField.getValue() + ",");
-                        } else {
-                            values.append("'" + customField.getValue() + "',");
+                        switch (type.toLowerCase()) {
+                            case "long":
+                            case "int":
+                            case "double":
+                            case "float":
+                            case "bigdecimal":
+                            case "integer":
+                                values.append(value + ",");
+                                break;
+                            case "boolean":
+                                boolean b = Boolean.parseBoolean(value.toString());
+                                values.append((b ? 1 : 2) + ",");
+                                break;
+                            case "date":
+                                Date d = (Date) value;
+                                String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(d);
+                                values.append("'" + date + "',");
+                                break;
+                            default:
+                                values.append("'" + value + "',");
+                                break;
                         }
                     }
                 }
@@ -600,7 +611,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
             k = jdbcTemplate.update(preparedStatementCreator, keyHolder);
             try {
                 Number number = keyHolder.getKey();
-                switch (type.toLowerCase()) {
+                switch (idType.toLowerCase()) {
                     case "string":
                         setMethod.invoke(entity, number.toString());
                         break;
@@ -608,6 +619,7 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
                         setMethod.invoke(entity, number.longValue());
                         break;
                     case "int":
+                    case "integer":
                         setMethod.invoke(entity, number.intValue());
                         break;
                 }
@@ -632,7 +644,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      *
      * @param entitys
      * @param tClass
-     *
      * @return
      */
     public List<T> insert(List<T> entitys, Class<T> tClass) {
@@ -650,7 +661,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      * 修改实体
      *
      * @param entity
-     *
      * @return
      */
     public T update(T entity, Class<T> tClass) {
@@ -697,7 +707,6 @@ public class JdbcRepositoryImpl<T, ID> implements JdbcRepository<T, ID> {
      *
      * @param entitys
      * @param tClass
-     *
      * @return
      */
     public List<T> update(List<T> entitys, Class<T> tClass) {

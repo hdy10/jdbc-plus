@@ -3,6 +3,8 @@ package com.github.hdy.jdbcplus.log;
 
 import com.github.hdy.jdbcplus.util.Logs;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -61,7 +63,7 @@ public class SqlLogs {
         Logs.info("┣ 查询类型: " + type);
         Logs.info("┣  S Q L : " + sql);
         Logs.info("┣ 查询参数: " + unfixedToString(params));
-        Logs.info("┣ 返回数据: " + data.toString());
+        Logs.info("┣ 返回数据: " + (data.toString().length() > 500 ? data.toString().substring(0, 500) + "..." : data.toString()));
         Logs.info("┣ 处理时间: " + times + "ms");
         Logs.info("┗━━━━━ " + className + "." + methodName + "(" + fileName + ":" + lineNumber + ")");
     }
@@ -85,7 +87,7 @@ public class SqlLogs {
         Logs.info("┣查询类型: " + type);
         Logs.info("┣ S Q L : " + sql);
         Logs.info("┣查询参数: " + params);
-        Logs.info("┣返回数据: " + data.toString());
+        Logs.info("┣返回数据: " + (data.toString().length() > 500 ? data.toString().substring(0, 500) + "..." : data.toString()));
         Logs.info("┣处理时间: " + times + "ms");
         Logs.info("┗━━━━━ " + className + "." + methodName + "(" + fileName + ":" + lineNumber + ")");
     }
