@@ -30,16 +30,6 @@ public class Page<T> {
      */
     private List<T> rows = Collections.emptyList();
 
-    /**
-     * SQL 排序 ASC 数组
-     */
-    private String[] ascs;
-
-    /**
-     * SQL 排序 DESC 数组
-     */
-    private String[] descs;
-
     public Page(Integer pageNumber, Integer pageSize, Integer total, List<T> rows) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
