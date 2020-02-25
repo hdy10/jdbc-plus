@@ -1,5 +1,6 @@
 package com.github.hdy.jdbcplus.data.db;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.hdy.jdbcplus.data.annotation.Transient;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,7 @@ public class BaseEntity implements Serializable {
     @Transient
     @Getter
     @Setter
+    @JsonIgnore
     private Integer pageNumber;
     /**
      * 每页数量
@@ -27,6 +29,7 @@ public class BaseEntity implements Serializable {
     @Transient
     @Getter
     @Setter
+    @JsonIgnore
     private Integer pageSize;
     /**
      * 排序字段
@@ -34,6 +37,7 @@ public class BaseEntity implements Serializable {
     @Transient
     @Getter
     @Setter
+    @JsonIgnore
     private String orderByField;
     /**
      * 排序方式
@@ -41,5 +45,6 @@ public class BaseEntity implements Serializable {
     @Transient
     @Getter
     @Setter
+    @JsonIgnore
     private String orderByValue;
 }
